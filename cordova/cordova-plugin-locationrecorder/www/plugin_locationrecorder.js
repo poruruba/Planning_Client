@@ -156,6 +156,34 @@ class LocationRecorderPlugin{
 		});
 	}
 	
+	getDatabaseSize(){
+		return new Promise(function(resolve, reject){
+			cordova.exec(
+				function(result){
+					resolve(result);
+				},
+				function(err){
+					reject(err);
+				},
+				"LocationRecorderPlugin", "getDatabaseSize",
+				[]);
+		});
+	}
+	
+	getUserId(){
+		return new Promise(function(resolve, reject){
+			cordova.exec(
+				function(result){
+					resolve(result);
+				},
+				function(err){
+					reject(err);
+				},
+				"LocationRecorderPlugin", "getUserId",
+				[]);
+		});
+	}
+	
 	setCallback(enable, callback){
 		cordova.exec(
 			function(result){
