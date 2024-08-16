@@ -1,0 +1,10 @@
+{
+  "name": "cordova-plugin-locationrecorder",
+  "version": "0.0.1",
+  "cordova": {
+    "id": "cordova-plugin-locationrecorder",
+    "platforms": [
+      "android"
+    ]
+  }
+}

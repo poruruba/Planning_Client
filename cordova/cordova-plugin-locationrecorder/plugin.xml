@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    id="cordova-plugin-locationrecorder" version="0.0.1">
+    <name>LocationRecorderPlugin</name>
+    <js-module src="www/plugin_locationrecorder.js" name="locationrecorderplugin">
+        <clobbers target="locationrecorderplugin" />
+    </js-module>
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="LocationRecorderPlugin" >
+                <param name="android-package" value="jp.or.myhome.sample.plugin.LocationRecorder.Main"/>
+                <param name="onload" value="true" />
+            </feature>
+        </config-file>
+        <config-file target="res/xml/config.xml" parent="/*">
+            <preference name="android-minSdkVersion" value="26" />
+        </config-file>
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <uses-permission android:name="android.permission.INTERNET" />
+            <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+            <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+            <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+            <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+            <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+            <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+        </config-file>
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <service android:name="jp.or.myhome.sample.plugin.LocationRecorder.LocationService" android:exported="false" android:foregroundServiceType="location" />
+            <receiver android:name="jp.or.myhome.sample.plugin.LocationRecorder.Main$StartupReceiver" android:exported="false">
+                <intent-filter>
+                    <action android:name="android.intent.action.BOOT_COMPLETED" />
+                    <category android:name="android.intent.category.DEFAULT" />
+                </intent-filter>
+            </receiver>
+        </config-file>
+        <source-file src="src/android/jp/or/myhome/sample/plugin/LocationRecorder/Main.java" target-dir="src/jp/or/myhome/sample/plugin/LocationRecorder" />
+        <source-file src="src/android/jp/or/myhome/sample/plugin/LocationRecorder/LocationService.java" target-dir="src/jp/or/myhome/sample/plugin/LocationRecorder" />
+        <source-file src="src/android/jp/or/myhome/sample/plugin/LocationRecorder/LocationDbHelper.java" target-dir="src/jp/or/myhome/sample/plugin/LocationRecorder" />
+        <source-file src="src/android/jp/or/myhome/sample/plugin/LocationRecorder/HttpPostJson.java" target-dir="src/jp/or/myhome/sample/plugin/LocationRecorder" />
+        <framework src="com.google.android.gms:play-services-location:21.0.1" />
+    </platform>
+</plugin>

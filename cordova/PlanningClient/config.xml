@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="jp.or.myhome.sample.PlanningClient" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>PlanningClient</name>
+    <description>Sample Apache Cordova App</description>
+    <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
+        Apache Cordova Team
+    </author>
+    <content src="index.html" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    
+    <allow-navigation href="https://【立ち上げたサーバのドメイン名】/cordova_base/*" />
+    <platform name="android">
+      <content src="https://【立ち上げたサーバのドメイン名】/cordova_base/planning_client/android/index.html" />
+      <preference name="cordova.plugins.diagnostic.modules" value="LOCATION" />
+      <preference name="AndroidLaunchMode" value="singleTask"/>
+      <config-file target="AndroidManifest.xml" parent="/manifest/application/activity">
+          <intent-filter>
+              <action android:name="android.intent.action.SEND" />
+              <category android:name="android.intent.category.DEFAULT" />
+              <data android:mimeType="text/plain" />
+          </intent-filter>
+      </config-file>
+      <icon density="ldpi" src="res/icon/android/36x36.png" />
+      <icon density="mdpi" src="res/icon/android/48x48.png" />
+      <icon density="hdpi" src="res/icon/android/72x72.png" />
+      <icon density="xhdpi" src="res/icon/android/96x96.png" />
+      <icon density="xxhdpi" src="res/icon/android/144x144.png" />
+    </platform>
+</widget>
