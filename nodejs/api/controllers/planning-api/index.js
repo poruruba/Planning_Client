@@ -53,8 +53,8 @@ function isValidUUID(uuid) {
 async function getFolders(directoryPath) {
 	var files = await fs.readdir(directoryPath, { withFileTypes: true } );
 	const folders = files
-			.filter(file => file.isDirectory())  // フォルダのみフィルタリング
-			.map(file => file.name);  // フォルダ名を取得
+			.filter(file => file.isDirectory())
+			.map(file => file.name);
 	return folders;
 }
 
