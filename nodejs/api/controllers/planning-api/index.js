@@ -14,10 +14,10 @@ const mysql = require('mysql2/promise');
 const PUBLIC_PLANNING_FOLDER = "/planning/";
 const LOCAL_PLANNING_FOLDER = process.env.THIS_BASE_PATH + "/public" + PUBLIC_PLANNING_FOLDER;
 const CONTENT_FNAME = "content.json";
-const DB_HOST = "qnap.myhome.or.jp";
-const DB_PORT = 3307;
-const DB_USER = "test20240728";
-const DB_PASSWORD = "ROOTER00";
+const DB_HOST = "【MySQLサーバのホスト名】";
+const DB_PORT = 【MySQLサーバのポート番号】;
+const DB_USER = "【MySQLサーバのユーザ名】";
+const DB_PASSWORD = "【MySQLサーバのパスワード】";
 const DB_DATABASE = "locationdb";
 
 let conn;
