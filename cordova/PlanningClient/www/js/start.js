@@ -273,11 +273,14 @@ var vue_options = {
                 var input = {
                     url: base_url + "/planning-create",
                     body: {
-                content: {
+                        content: {
                             userid: this.userId,
-                    name: name,
-                    point_list: []
-                }
+                            name: name,
+                            point_list: [],
+                            memo_list: [],
+                            start_datetime: 0,
+                            end_datetime: 0,
+                        }
                     }
             };
             var result = await do_http(input);
@@ -286,6 +289,9 @@ var vue_options = {
             this.route_id = result.id;
             this.route_name = name;
             this.point_list = [];
+            this.memo_list = [];
+            this.start_datetime = 0;
+            this.end_datetime = 0;
             this.update_point_marker();
             }catch(error){
                 console.error(error);
