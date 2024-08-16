@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src * 'unsafe-inline'; media-src *; img-src * data: content: blob:;">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Cache-Control" content="no-cache">
+
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+  <!-- Optional theme -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="css/start.css">
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spinkit/2.0.1/spinkit.min.css" /> -->
+  <script src="js/methods_bootstrap.js"></script>
+  <script src="js/components_bootstrap.js"></script>
+  <script src="js/components_utils.js"></script>
+  <script src="js/vue_utils.js"></script>
+  <!-- <script src="js/gql_utils.js"></script> -->
+
+  <script src="js/remoteconsole.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vconsole/dist/vconsole.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuex@3.x/dist/vuex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue-router@3.x/dist/vue-router.min.js"></script>
+
+  <!-- <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script> -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script> -->
+
+  <script src="https://cdn.jsdelivr.net/npm/ua-parser-js@1.0.35/src/ua-parser.min.js"></script>
+
+  <title>散歩ルート</title>
+</head>
+
+<body>
+  <!--
+    <div id="loader-background">
+      <div class="sk-plane sk-center"></div>
+    </div>
+-->
+  <div id="top" class="container">
+    <div class="jumbotron">
+      <button class="btn btn-default btn-sm pull-right" v-on:click="reload">reload</button>
+      <button v-if="!notCordova" class="btn btn-default btn-sm pull-right" v-on:click="dialog_open('#setting_dialog')">設定</button>
+      <h2>散歩ルート</h2>
+    </div>
+
+    <span v-if="!notCordova">
+      <label>center</label> <input type="checkbox" v-model="center_trace">
+      <button class="btn btn-default btn-sm" v-on:click="dialog_open('#draw_trajectory_dialog')">軌跡表示</button>
+    </span>
+    <button class="btn btn-default btn-sm pull-right" v-on:click="map_currentPosition">現在地を更新</button>
+    <br><br>
+    <a name="map"></a>
+    <div id="map" style="height:50vh"></div>
+    <br>
+
+    <button class="btn btn-primary" v-on:click="start_route_create">ルート作成</button>
+    <button class="btn btn-primary" v-on:click="start_route_select">ルート選択</button>
+    <button v-if="route_name" class="btn btn-default btn-xs pull-right" v-on:click="start_route_delete">削除</button><br>
+    <br>
+    <div v-if="route_name">
+      <label>route_name</label> {{route_name}} <button class="btn btn-default btn-xs" v-on:click="edit_route_name">変更</button><br>
+      <label>route_id</label> {{route_id}}<br>
+      <label>period</label> <span v-if="start_datetime!=0 && end_datetime!=0">
+        {{toLocaleString(start_datetime)}}～{{toLocaleString(end_datetime)}}
+      </span>
+      <button v-if="!notCordova" class="btn btn-default btn-xs" v-on:click="start_edit_route_pediod">変更</button><br>
+      <br>
+  
+      <button class="btn btn-default" v-on:click="dialog_open('#show_memo_dialog')">メモ表示</button>
+      <button class="btn btn-primary pull-right" v-on:click="start_point_append()">ポイント追加</button>
+    </div>
+    <br>
+
+    <div v-for="(item, index) in point_list">
+      <span v-if="index!=0">&nbsp;&nbsp;↓<br><br></span>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h2 class="panel-title">
+            <a data-toggle="collapse" v-bind:href="'#point_entry_' + index">{{index + 1}} : {{item.name}}</a>
+            <button class="btn btn-default btn-xs pull-right" v-on:click="point_backward(index)">↓</button>
+            <button class="btn btn-default btn-xs pull-right" v-on:click="point_forward(index)">↑</button>
+          </h2>
+        </div>
+        <div class="panel-body" v-if="item.images.length > 0">
+          <a data-toggle="collapse" v-bind:href="'#point_entry_' + index">
+            <img style="width: 100%; height: 100px; object-fit: cover;" v-bind:src="image_url(index, 0)">
+          </a>
+        </div>
+        <div v-bind:id="'point_entry_' + index" class="panel-collapse collapse">
+          <div class="panel-body">
+            <label>name</label> {{item.name}}<br>
+            <label>lat,lng</label> {{item.lat}},{{item.lng}}<br>
+            <label>place_id</label> {{item.place_id}}<br>
+            <label>url</label> <a v-if="item.url" v-bind:href="item.url">{{item.url}}</a><br>
+            <label>memo</label>
+            <p>{{item.memo}}</p>
+            <label>image</label><br>
+            <img v-for="(item2, index2) in item.images" class="img-thumbnail" v-bind:src="image_url(index, index2)" style="width: 80px; height: 80px; object-fit: cover;" v-on:click="start_view_image(index, index2)">
+            <hr>
+            <button class="btn btn-default" v-on:click="start_googlemap(index)">アプリ</button>
+            <button class="btn btn-default" v-on:click="do_goto_map(index)">地図</button>
+            <button class="btn btn-default" v-on:click="start_point_update(index)">編集</button>
+            <button class="btn btn-default btn-xs pull-right" v-on:click="point_delete(index)">削除</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    <!-- ルート期間編集ダイアログ -->
+    <div class="modal" id="period_edit_dialog">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">ルート期間</h4>
+          </div>
+          <div class="modal-body">
+            <label>start_datetime</label> <comp_datetime v-model="data_period_edit.start_datetime"></comp_datetime><br>
+            <label>end_datetime</label> <comp_datetime v-model="data_period_edit.end_datetime"></comp_datetime><br>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" v-on:click="do_route_period_edit">更新</button>
+            <button class="btn btn-default" v-on:click="dialog_close('#period_edit_dialog')">閉じる</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ポイント追加ダイアログ -->
+    <div class="modal" id="point_append_dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">ポイント追加</h4>
+          </div>
+          <div class="modal-body">
+            <label>GoogleMap共有URL</label> <input type="text" class="form-control" v-model="data_point_append.url"><br>
+            <button class="btn btn-primary" v-on:click="parse_share_url">解析</button>
+            <br>
+            <label>name</label> {{data_point_append.result?.name}}<br>
+            <label>lat</label> {{data_point_append.result?.lat}}<br>
+            <label>lng</label> {{data_point_append.result?.lng}}<br>
+
+            <div class="form-inline">
+              <label><input type="radio" v-model="data_point_append.type" value="head"> 先頭に追加</label><br>
+              <label><input type="radio" v-model="data_point_append.type" value="foot"> 末尾に追加</label><br>
+              <div class="form-inline">
+                <label><input type="radio" v-model="data_point_append.type" value="index" v-bind:disabled="point_list.length==0"> 位置指定に追加</label>
+                <select class="form-control" v-model.number="data_point_append.index">
+                  <option v-for="(item, index) in point_list" v-bind:value="index">{{item.name}}</option>
+                </select>
+                <select class="form-control" v-model="data_point_append.position">
+                  <option value="forward">の前に</option>
+                  <option value="backward">の後に</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" v-on:click="do_point_append" v-bind:disabled="!data_point_append.result">追加</button>
+            <button class="btn btn-default" v-on:click="cancel_point_append">キャンセル</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- アプリ表示ダイアログ -->
+    <div class="modal" id="googlemap_dialog">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">アプリ表示</h4>
+          </div>
+          <div class="modal-body">
+            <label>name</label> {{point_list[googlemap_index]?.name}}<br>
+            <div v-if="!notCordova" class="form-inline">
+              <label>from</label> <select class="form-control" v-model.number="from_point_index">
+                <option value="-1">現在地</option>
+                <option v-for="(item, index) in point_list" v-bind:value="index">{{item.name}}</option>
+              </select>
+              <label>travelmode</label> <select class="form-control" v-model="travelmode">
+                <option value="driving">車</option>
+                <option value="walking">徒歩</option>
+                <option value="transit">交通機関</option>
+                <option value="bicycling">自転車</option>
+              </select>
+              <button class="btn btn-default" v-on:click="do_googlemap_route">ルート表示</button>
+            </div><br>
+            <button class="btn btn-default" v-on:click="do_googlemap_search">GoogleMap検索表示</button><br>
+            <button class="btn btn-default" v-on:click="do_google_search">Google検索表示</button><br>
+        </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" v-on:click="dialog_close('#googlemap_dialog')">キャンセル</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ポイント編集ダイアログ -->
+    <div class="modal" id="point_update_dialog">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">ポイント編集</h4>
+          </div>
+          <div class="modal-body">
+            <label>name</label> <input type="text" class="form-control" v-model="target_point.name"><br>
+            <label>url</label> <input type="text" class="form-control" v-model="target_point.url"><br>
+            <label>memo</label> <textarea class="form-control" rows="3" v-model="target_point.memo"></textarea>
+            <br>
+            <label>image(file)</label>
+            <comp_file id="point_image_file" accept="image/*" v-bind:callback="change_image_file"></comp_file><br>
+            <span v-if="!notCordova">
+              <label>image(camera)</label><br>
+              <button class="btn btn-default btn-sm" v-on:click="start_camera_take">カメラ</button>
+            </span>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" v-on:click="do_point_update">更新</button>
+            <button class="btn btn-default" v-on:click="dialog_close('#point_update_dialog')">閉じる</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 画像表示ダイアログ -->
+    <div class="modal" id="point_image_dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">
+            <label>id</label> {{point_list[target_point_index]?.images[target_image_index]?.id}}<br>
+            <center>
+              <img class="img-responsive" v-bind:src="image_url(target_point_index, target_image_index)">
+            </center>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" v-on:click="do_image_top">先頭</button>
+            <button class="btn btn-default" v-on:click="do_image_delete">削除</button>
+            <button class="btn btn-default" v-on:click="dialog_close('#point_image_dialog')">キャンセル</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ルート選択ダイアログ -->
+    <div class="modal" id="route_select_dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">ルート選択</h4>
+          </div>
+          <div class="modal-body">
+            <label>name</label> <select class="form-control" v-model="selecting_route">
+              <option v-for="(item, index) in route_list" v-bind:value="item">{{item.name}}</option>
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" v-on:click="do_route_select_read">選択</button>
+            <button class="btn btn-default" v-on:click="do_route_select_cancel">閉じる</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 設定ダイアログ -->
+    <div class="modal" id="setting_dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">設定</h4>
+          </div>
+          <div class="modal-body">
+            <label>userId</label> {{userId}}<br>
+            <label>dbsize</label> {{dbsize}}<br>
+
+            <div class="form-inline">
+              <label>minTime</label> <input type="text" class="form-control" v-model.number="data_setting.minTime"><br>
+              <label>minDistance</label> <input type="text" class="form-control" v-model.number="data_setting.minDistance"><br>
+              <label>uploadDuration</label> <input type="text" class="form-control" v-model.number="data_setting.uploadDuration"><br>
+            </div><br>
+            <label>isRunning</label> {{isRunning}} <button v-if="!isRunning" class="btn btn-default" v-on:click="start_service">開始</button>
+            <button v-else class="btn btn-default" v-on:click="stop_service">停止</button><br>
+
+            <label>uploadUrl</label> {{uploadUrl}} <button class="btn btn-default btn-sm" v-on:click="uploadUrl_change">変更</button><br>
+            <label>isBootup</label> <input type="checkbox" v-model="isBootup" v-on:change="bootup_change"><br>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" v-on:click="dialog_close('#setting_dialog')">閉じる</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 軌跡表示ダイアログ -->
+    <div class="modal" id="draw_trajectory_dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">軌跡の表示</h4>
+          </div>
+          <div class="modal-body">
+            <div class="form-inline">
+              <label><input type="radio" v-model="data_draw_trajectory.type" value="current">過去から現在までを表示</label>
+              <comp_datetime v-model="data_draw_trajectory.start_datetime"></comp_datetime>
+            </div>
+            <div class="form-inline">
+              <label><input type="radio" v-model="data_draw_trajectory.type" value="history">過去を表示</label>
+              <comp_datetime v-model="data_draw_trajectory.start_datetime"></comp_datetime>
+              <comp_datetime v-model="data_draw_trajectory.end_datetime"></comp_datetime>
+            </div>
+            <div class="form-inline">
+              <label><input type="radio" v-model="data_draw_trajectory.type" value="none">表示しない</label>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" v-on:click="do_change_trajectory">選択</button>
+            <button class="btn btn-default" v-on:click="dialog_close('#draw_trajectory_dialog')">閉じる</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- メモ表示ダイアログ -->
+    <div class="modal" id="show_memo_dialog">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">メモの表示</h4>
+          </div>
+          <div class="modal-body">
+            <label>title</label> <select class="form-control" v-model="memo_selecting_index">
+              <option v-for="(item, index) in memo_list" v-bind:value="index">{{item.title}}</option> 
+            </select><br>
+            <div v-if="memo_list[memo_selecting_index]">
+              <button class="btn btn-default btn-xs pull-right" v-on:click="memo_delete">削除</button>
+              <label>datetime</label> {{toLocaleString(memo_list[memo_selecting_index].datetime)}}<br>
+              <textarea class="form-control" rows="20" readonly>{{memo_list[memo_selecting_index].text}}</textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" v-on:click="dialog_close('#show_memo_dialog')">閉じる</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <router-view></router-view>
+
+    <!-- for progress-dialog -->
+    <progress-dialog v-bind:title="progress_title"></progress-dialog>
+  </div>
+
+  <script src="js/store.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/start.js"></script>
+
+  <script src="js/index.js"></script>
+  <!-- <script src="cordova.js"></script> -->
+
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-agnCTiaffswNRM6LthvyYH5lrHP7Dt4&libraries=places,geometry&callback=initMap" async defer></script>
+</body>
