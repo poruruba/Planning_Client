@@ -605,6 +605,7 @@ var vue_options = {
                 lat: result.geometry.location.lat(),
                 lng: result.geometry.location.lng(),
                 place_id: result.place_id,
+                url: result.website,
                 images: [],
             });
         },
@@ -992,7 +993,7 @@ async function retrieveDetailData(url) {
     return new Promise((resolve, reject) => {
         geocoder.geocode({ address: result.name, bounds: bounds }, (results, status) => {
             if (status === "OK") {
-                places.getDetails({ placeId: results[0].place_id }, (place, status) => {
+                places.getDetails({ placeId: results[0].place_id, fields: ["name", "geometry", "place_id", "website" }, (place, status) => {
                     if (status == "OK")
                         return resolve(place);
                     else
