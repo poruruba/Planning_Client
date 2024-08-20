@@ -158,6 +158,7 @@ var vue_options = {
                 if (polyline && isPolylineTrace) {
                     var path = polyline.getPath();
                     path.push(latlng);
+                    polyline.setPath(path);
                 }
                 if (this.center_trace) {
                     map.setCenter(latlng);
